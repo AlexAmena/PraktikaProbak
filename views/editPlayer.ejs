@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>EditPlayer</title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <script src="/javascripts/edit.js"></script>
+  <script>
+
+    let ligaIdMap = {
+      "LaLiga": 564,
+      "Bundesliga": 82,
+      "Serie A": 384,
+      "Premier League": 8,
+      "Ligue1": 301
+    }
+
+    let taldeGuztiak = []
+
+    function error(msg) {
+      document.getElementById("error").innerHTML += `${msg}<br>`
+    }
+    function validateForm() {
+      document.getElementById("error").innerHTML = ''
+      let valid = true;
+      let keys = ["id", "name", "birthdate", "nationality", "birthdate", "leagueId", "teamId"]
+      keys.forEach(key => {
+        if (document.getElementById("form")[key].value == "") {
+          error(`${key} is required`)
+          valid = false;
+        }
+      })
+      if (valid) {
+        //Ligaren mapeoa egin (izenetik id-a lortu)
+        let liga = document.getElementById('leagueId')
+        let ligueNumber = ligaIdMap[liga.value]
+        restartComboBox(liga)
+        let option = document.createElement('option')
+        option.innerText = ligueNumber
+        liga.appendChild(option)
+
+        //Taldearen mapeoa egin (izenetik id-a lortu)
+        let taldeId
+        taldeGuztiak.forEach(taldea => {
+          if (taldea.teamName == document.getElementById('teamId').value) {
+            taldeId = taldea.teamId
+          }
+        })
+        restartComboBox(document.getElementById('teamId'))
+        option = document.createElement('option')
+        option.innerText = taldeId
+        document.getElementById('teamId').appendChild(option)
+
+        //BIDALI FORMULARIOKO INFORMAZIOA
+        const data = Object.fromEntries(new FormData(form).entries());
+        console.log(data)
+
+        document.getElementById('form').submit() //Fitxategia igotzeko
+        fetch('/api/v1/players/edit', {
+          method: "PUT",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }).then(r => r.text()).then(async r => {
+          console.log(r)
+          document.body.innerHTML = r
+          let result //hemen egongo dira talde guztiak, ligen id-ekin
+          await fetch('/api/v1/players/getLeaguesAndTeams').then(r=>console.log(r)).then(res => res.json()).then(res => result = res)
+          taldeGuztiak = result
+          let leagues = document.getElementById('leagueId')
+          let jokalariarenLiga = leagues.value //ligaren id-a
+          let teams = document.getElementById('teamId')
+          let jokalariarenTaldea = teams.value //jokalariaren taldearen id
+
+          //Bete comboBox-a ligen izenekin, gehitu liga guztiak (lehenengo posizioan jokalariari dagokiona, horretarako lehenengo for-a):
+          restartComboBox(leagues)
+          let ligenIzenak = Object.keys(ligaIdMap)
+          ligenIzenak.forEach(liga => {
+            if (ligaIdMap[liga] == jokalariarenLiga) {
+              let option = document.createElement('option')
+              option.innerText = liga
+              leagues.appendChild(option)
+            }
+          })
+          ligenIzenak.forEach(liga => {
+            if (ligaIdMap[liga] != jokalariarenLiga) {
+              let option = document.createElement('option')
+              option.innerText = liga
+              leagues.appendChild(option)
+            }
+          })
+
+
+          //Talde guztiak gorde array-etan:
+          let laLigakoTaldeak = []
+          let bundesligakoTaldeak = []
+          let serieATaldeak = []
+          let premierLeagueTaldeak = []
+          let ligue1Taldeak = []
+          result.forEach(team => {
+            if (team.leagueId == ligaIdMap['LaLiga']) {
+              laLigakoTaldeak.push(team)
+            }
+            else if (team.leagueId == ligaIdMap['Bundesliga']) {
+              bundesligakoTaldeak.push(team)
+            }
+            else if (team.leagueId == ligaIdMap['Serie A']) {
+              serieATaldeak.push(team)
+            }
+            else if (team.leagueId == ligaIdMap['Premier League']) {
+              premierLeagueTaldeak.push(team)
+            }
+            else {
+              ligue1Taldeak.push(team)
+            }
+          })
+          //Ekipoen comboBox-a hasieratu
+          restartComboBox(teams)
+
+          if (jokalariarenLiga == ligaIdMap['LaLiga']) {
+            laLigakoTaldeak.forEach(taldea => {
+              if (taldea.teamId == jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+            laLigakoTaldeak.forEach(taldea => {
+              if (taldea.teamId != jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+          }
+          else if (jokalariarenLiga == ligaIdMap['Bundesliga']) {
+            bundesligakoTaldeak.forEach(taldea => {
+              if (taldea.teamId == jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+            bundesligakoTaldeak.forEach(taldea => {
+              if (taldea.teamId != jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+          }
+          else if (jokalariarenLiga == ligaIdMap['Serie A']) {
+            serieATaldeak.forEach(taldea => {
+              if (taldea.teamId == jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+            serieATaldeak.forEach(taldea => {
+              if (taldea.teamId != jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+          }
+          else if (jokalariarenLiga == ligaIdMap['Premier League']) {
+            premierLeagueTaldeak.forEach(taldea => {
+              if (taldea.teamId == jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+            premierLeagueTaldeak.forEach(taldea => {
+              if (taldea.teamId != jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+          }
+          else {
+            ligue1Taldeak.forEach(taldea => {
+              if (taldea.teamId == jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+            ligue1Taldeak.forEach(taldea => {
+              if (taldea.teamId != jokalariarenTaldea) {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              }
+            })
+          }
+
+          //event Listener-a liga aldatzean agertzen diren taldeak ere aldatzeko:
+          leagues.addEventListener('change', () => {
+            restartComboBox(teams)
+            if (leagues.value == 'LaLiga') {
+              laLigakoTaldeak.forEach(taldea => {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              })
+            }
+            else if (leagues.value == 'Serie A') {
+              serieATaldeak.forEach(taldea => {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              })
+            }
+            else if (leagues.value == 'Premier League') {
+              premierLeagueTaldeak.forEach(taldea => {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              })
+            }
+            else if (leagues.value == 'Ligue1') {
+              ligue1Taldeak.forEach(taldea => {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              })
+            }
+            else if (leagues.value == 'Bundesliga') {
+              bundesligakoTaldeak.forEach(taldea => {
+                let option = document.createElement('option')
+                option.innerText = taldea.teamName
+                teams.appendChild(option)
+              })
+            }
+          })
+        })
+      }
+    }
+
+
+    window.onload = async function () {
+
+      let result //hemen egongo dira talde guztiak, ligen id-ekin
+      await fetch('/api/v1/players/getLeaguesAndTeams').then(res => res.json()).then(res => result = res)
+      taldeGuztiak = result
+      let leagues = document.getElementById('leagueId')
+      let jokalariarenLiga = leagues.value //ligaren id-a
+      let teams = document.getElementById('teamId')
+      let jokalariarenTaldea = teams.value //jokalariaren taldearen id
+
+      //Bete comboBox-a ligen izenekin, gehitu liga guztiak (lehenengo posizioan jokalariari dagokiona, horretarako lehenengo for-a):
+      restartComboBox(leagues)
+      let ligenIzenak = Object.keys(ligaIdMap)
+      ligenIzenak.forEach(liga => {
+        if (ligaIdMap[liga] == jokalariarenLiga) {
+          let option = document.createElement('option')
+          option.innerText = liga
+          leagues.appendChild(option)
+        }
+      })
+      ligenIzenak.forEach(liga => {
+        if (ligaIdMap[liga] != jokalariarenLiga) {
+          let option = document.createElement('option')
+          option.innerText = liga
+          leagues.appendChild(option)
+        }
+      })
+
+
+      //Talde guztiak gorde array-etan:
+      let laLigakoTaldeak = []
+      let bundesligakoTaldeak = []
+      let serieATaldeak = []
+      let premierLeagueTaldeak = []
+      let ligue1Taldeak = []
+      result.forEach(team => {
+        if (team.leagueId == ligaIdMap['LaLiga']) {
+          laLigakoTaldeak.push(team)
+        }
+        else if (team.leagueId == ligaIdMap['Bundesliga']) {
+          bundesligakoTaldeak.push(team)
+        }
+        else if (team.leagueId == ligaIdMap['Serie A']) {
+          serieATaldeak.push(team)
+        }
+        else if (team.leagueId == ligaIdMap['Premier League']) {
+          premierLeagueTaldeak.push(team)
+        }
+        else {
+          ligue1Taldeak.push(team)
+        }
+      })
+      //Ekipoen comboBox-a hasieratu
+      restartComboBox(teams)
+
+      if (jokalariarenLiga == ligaIdMap['LaLiga']) {
+        laLigakoTaldeak.forEach(taldea => {
+          if (taldea.teamId == jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+        laLigakoTaldeak.forEach(taldea => {
+          if (taldea.teamId != jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+      }
+      else if (jokalariarenLiga == ligaIdMap['Bundesliga']) {
+        bundesligakoTaldeak.forEach(taldea => {
+          if (taldea.teamId == jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+        bundesligakoTaldeak.forEach(taldea => {
+          if (taldea.teamId != jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+      }
+      else if (jokalariarenLiga == ligaIdMap['Serie A']) {
+        serieATaldeak.forEach(taldea => {
+          if (taldea.teamId == jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+        serieATaldeak.forEach(taldea => {
+          if (taldea.teamId != jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+      }
+      else if (jokalariarenLiga == ligaIdMap['Premier League']) {
+        premierLeagueTaldeak.forEach(taldea => {
+          if (taldea.teamId == jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+        premierLeagueTaldeak.forEach(taldea => {
+          if (taldea.teamId != jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+      }
+      else {
+        ligue1Taldeak.forEach(taldea => {
+          if (taldea.teamId == jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+        ligue1Taldeak.forEach(taldea => {
+          if (taldea.teamId != jokalariarenTaldea) {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          }
+        })
+      }
+
+      //event Listener-a liga aldatzean agertzen diren taldeak ere aldatzeko:
+      leagues.addEventListener('change', () => {
+        restartComboBox(teams)
+        if (leagues.value == 'LaLiga') {
+          laLigakoTaldeak.forEach(taldea => {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          })
+        }
+        else if (leagues.value == 'Serie A') {
+          serieATaldeak.forEach(taldea => {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          })
+        }
+        else if (leagues.value == 'Premier League') {
+          premierLeagueTaldeak.forEach(taldea => {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          })
+        }
+        else if (leagues.value == 'Ligue1') {
+          ligue1Taldeak.forEach(taldea => {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          })
+        }
+        else if (leagues.value == 'Bundesliga') {
+          bundesligakoTaldeak.forEach(taldea => {
+            let option = document.createElement('option')
+            option.innerText = taldea.teamName
+            teams.appendChild(option)
+          })
+        }
+      })
+
+
+      //Formularioa bidaltzeko
+      let form = document.getElementById("form")
+      let sumbit = document.getElementById("amaitu")
+      sumbit.addEventListener('click', (e) => {
+        validateForm()
+      })
+    }
+    //Method to delete all options of comboBox
+    function restartComboBox(comboBox) {
+      for (let i = comboBox.length - 1; i >= 0; i--) {
+        comboBox[i].remove()
+      }
+    }
+  </script>
+  <link rel='stylesheet' href='/stylesheets/editPlayer.css' type="text/css" />
+</head>
+
+<body>
+  <div id="editForm">
+    <h1>Edit player</h1>
+    <form method="POST" action="/api/v1/players/edit" enctype="multipart/form-data" id="form">
+      <table class="table table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <td>Id</td>
+            <td> <input name=id id="id" type="text" value=<%=inf.id %> readonly></td>
+          </tr>
+          <tr>
+            <td>Name</td>
+            <td><input name=name id="name" type="text" value=<%=inf.name %>></td>
+          </tr>
+          <tr>
+            <td>Birth Date</td>
+            <td> <input name=birthdate id="birthdate" type="date" value=<%=inf.birthdate %>></td>
+          </tr>
+          <tr>
+            <td>Nationality</td>
+            <td><input name=nationality id="nationality" type="text" value=<%=inf.nationality %>></td>
+          </tr>
+          <tr>
+            <td>Position</td>
+            <td>
+              <select name="position" id="position">
+                <option>
+                  <%=inf.position%>
+                </option>
+                <%if(inf.position=='GK') { %>
+                  <option>DF</option>
+                  <option>MF</option>
+                  <option>FW</option>
+                  <% } else if(inf.position=='DF' ) {%>
+                    <option>GK</option>
+                    <option>MF</option>
+                    <option>FW</option>
+                    <% } else if(inf.position=='MF' ) { %>
+                      <option>GK</option>
+                      <option>DF</option>
+                      <option>FW</option>
+                      <% } else{ %>
+                        <option>GK</option>
+                        <option>DF</option>
+                        <option>MF</option>
+                        <% } %>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Number</td>
+            <td>
+              <select name="number" id="number" width="50">
+                <option>
+                  <%=inf.number%>
+                </option>
+                <% for(let i=1; i<100; i++){ %>
+                  <% if(i !=inf.number) { %>
+                    <option>
+                      <%=i%>
+                    </option>
+                    <%}%>
+                      <%}%>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>League ID</td>
+            <td>
+              <select name="leagueId" id="leagueId">
+                <option>
+                  <%=inf.leagueId%>
+                </option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Team ID</td>
+            <td>
+              <select name="teamId" id="teamId">
+                <option>
+                  <%=inf.teamId%>
+                </option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Argazkia (PNG)</td>
+            <td><img src="/json/players/<%=inf.id%32%>/<%=inf.id%>.png" width="50px" heigth="50px"></td>
+          </tr>
+          <tr>
+            <td><input type="file" id="file" name="file"></td>
+          </tr>
+          <tr>
+            <td><input class ="button" type="button" id="amaitu" value="Submit"></td>
+          </tr>
+          <tr>
+            <td><a href="/api/v1/players"><button class ="button">Player List</button></a></td>
+          </tr>
+        </thead>
+      </table>
+    </form>
+  
+  <div id="error"></div>
+  <%=error%>
+</div>
+</body>
+
+</html>

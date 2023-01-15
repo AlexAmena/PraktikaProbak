@@ -1,0 +1,44 @@
+#seeForm {
+    background-color: #fff;
+    width: 35%;
+    margin: 30px auto;
+    text-align: center;
+    padding: 20px 0 0 0;
+    border-radius: 4px;
+    box-shadow: 0px 30px 50px 0px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    align-content: center;
+  }
+  body {
+    background-color: #9f9da7;
+    font-size: 1.6rem;
+    font-family: "Open Sans", sans-serif;
+    color: #2b3e51;
+  }
+
+  .button{
+    background-color: #3ca9e2;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 300;
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    margin: 10px;
+    
+  }
+  .table-table-striped{
+    background-color: #fff;
+    width: 90%;
+    margin: 30px auto;
+    text-align: center;
+    padding: 20px 0 0 0;
+    border-radius: 4px;
+    box-shadow: 0px 30px 50px 0px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    align-content: center;
+
+  }

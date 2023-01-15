@@ -1,0 +1,37 @@
+body {
+    background-color: #9f9da7;
+    font-size: 1.6rem;
+    font-family: "Open Sans", sans-serif;
+    color: #2b3e51;
+  }
+
+  .buttons-panel {
+    background-color: #fff;
+    width: 35%;
+    margin: 30px auto;
+    margin-top: 15%;
+    text-align: center;
+    padding: 20px 0 0 0;
+    border-radius: 4px;
+    box-shadow: 0px 30px 50px 0px rgba(0, 0, 0, 0.2);
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+ 
+  }
+
+  .button{
+    background-color: #3ca9e2;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    margin: 10px;
+    
+  }

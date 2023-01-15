@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Create new player</title>
+  <link rel='stylesheet' href='/stylesheets/login.css' />
+</head>
+
+<body>
+  <div id ="login-form-wrap">
+    <h2>Register</h2>
+    <form id="login-form" action="/users/register" method="post">
+      <p>
+        <input type="text" name="name" id="name" placeholder="Enter Name">
+      </p>
+      <p>
+        <input type="text" name="surname" id="surname" placeholder="Enter Surname">
+      </p>
+      <p>
+        <input type="text" name="username" id="username" placeholder="Enter Username">
+      </p>
+      <p>
+        <input type="password" name="password" id="password" placeholder="Enter Password">
+      </p>
+      <p>
+        <input type="text" name="email" id="email" placeholder="Enter Email">
+      </p>
+      <input type="submit" value="Login" id="login">
+      <h4>
+        <%= errorea %>
+      </h4>
+    </form>
+  </div>
+</body>
+
+</html>

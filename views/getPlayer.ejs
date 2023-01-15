@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' href='/stylesheets/seePlayer.css' type="text/css" />
+    <title>GetPlayer</title>
+</head>
+
+<body>
+    <div id="seeForm">
+        <table class="table-table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <td>
+                        <h2>Name: </h2>
+                    </td>
+                    <td>
+                        <h2>
+                            <%= player.name %>
+                        </h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td>ID: </td>
+                    <td>
+                        <%= player.id %>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Birth Date: </td>
+                    <td>
+                        <%= player.birthdate %>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Nationality: </td>
+                    <td>
+                        <%= player.nationality %>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Position: </td>
+                    <td>
+                        <%= player.position %>
+                    </td>
+                </tr>
+                <tr>
+                    <td>League: </td>
+                    <% if (player.leagueId==8){ %>
+                        <td><img src="/json/leagues/<%='en1'%>.png" width="50px" height="50px"></td>
+                        <% } else if (player.leagueId==564) { %>
+                            <td><img src="/json/leagues/<%='es1'%>.png" width="50px" height="50px"></td>
+                            <% } else if (player.leagueId==384) { %>
+                                <td><img src="/json/leagues/<%='it1'%>.png" width="50px" height="50px"></td>
+                                <% } else if (player.leagueId==301) { %>
+                                    <td><img src="/json/leagues/<%='fr1'%>.png" width="50px" height="50px"></td>
+                                    <% } else { %>
+                                        <td><img src="/json/leagues/<%='de1'%>.png" width="50px" height="50px"></td>
+                                        <% } %>
+                </tr>
+                <tr>
+                    <td>Team: </td>
+                    <td><img src="/json/teams/<%= player.teamId % 32 %>/<%=player.teamId%>.png" width="50px"
+                            height="50px"></td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Photo: </td>
+                    <td><img src="/json/players/<%= player.id % 32 %>/<%=player.id%>.png" width="50px" height="50px">
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="./"><button class="button">Player List</button></a></td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</body>
+
+</html>

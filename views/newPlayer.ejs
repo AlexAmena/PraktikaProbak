@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Create new player</title>
+  <link rel='stylesheet' href='/stylesheets/editPlayer.css' />
+
+  <script type="module">
+    //gordeFitxategiak()
+    let ligaIdMap = {
+      "LaLiga": 564,
+      "Bundesliga": 82,
+      "Serie A": 384,
+      "Premier League": 8,
+      "Ligue1": 301
+    }
+    //BEktore honetan ekipoak eta beraien ideak gordeko dira (i posizioan taldea, eta i+1ean ida)
+    let ekipoakEtaIdeak = []
+
+    function error(msg) {
+      document.getElementById("error").innerHTML += `${msg}<br>`
+    }
+    function validateForm() {
+      document.getElementById("error").innerHTML = ''
+      let valid = true;
+      let keys = ["id", "name", "birthdate", "nationality", "birthdate", "leagueId", "teamId"]
+      keys.forEach(key => {
+        if (document.getElementById("form")[key].value == "") {
+          error(`${key} is required`)
+          valid = false;
+        }
+      })
+      if (valid) {
+        //Ligaren mapeoa egin
+        let liga = document.getElementById('leagueId')
+        let ligueNumber = ligaIdMap[liga.value]
+        restartComboBox(liga)
+        let option = document.createElement('option')
+        option.innerText = ligueNumber
+        liga.appendChild(option)
+
+        //Ekipoaren mapeoa egin
+        console.log(ekipoakEtaIdeak)
+        let ekipoa = document.getElementById('teamId')
+        let index = ekipoakEtaIdeak.indexOf(ekipoa.value)
+        let id = ekipoakEtaIdeak[index + 2]
+        restartComboBox(ekipoa)
+        id = parseInt(id)
+        option = document.createElement('option')
+        option.innerText = id
+        ekipoa.appendChild(option)
+        document.getElementById("form").submit();
+      }
+    }
+
+
+    window.onload = function () {
+      document.getElementById("amaitu").addEventListener('click', validateForm)
+      let selectedLeague = document.getElementById('leagueId');
+      let teamsComboBox = document.getElementById('teamId')
+      console.log(selectedLeague.children)
+
+      //Ekipoak filtratu eta eventListenerra gehitu liga aldatzean ekipoa ere aldatzeko:
+      //Hasierako listan talde izena eta bere ligaren ID-a gordeko dira
+      let bundesligaTeams = []
+      let laLigaTeams = []
+      let serieATeams = []
+      let premierLeagueTeams = []
+      let ligue1Teams = []
+      for (let i = 0; i < teamsComboBox.length; i = i + 3) {
+        if (teamsComboBox[i + 1].value == 82) {
+          bundesligaTeams.push(teamsComboBox[i].value)
+        }
+        else if (teamsComboBox[i + 1].value == 564) {
+          laLigaTeams.push(teamsComboBox[i].value)
+        }
+        else if (teamsComboBox[i + 1].value == 301) {
+          ligue1Teams.push(teamsComboBox[i].value)
+        }
+        else if (teamsComboBox[i + 1].value == 8) {
+          premierLeagueTeams.push(teamsComboBox[i].value)
+        }
+        else {
+          serieATeams.push(teamsComboBox[i].value)
+        }
+      }
+      //bektore honetan gorde ondoren taldearen id-a zein den jakiteko
+      //Kendu orain dagoena:
+      for (let i = teamsComboBox.length - 1; i >= 0; i = i - 3) {
+        if (i >= 2) {
+          ekipoakEtaIdeak.push(teamsComboBox[i - 2].value)
+          ekipoakEtaIdeak.push(teamsComboBox[i - 1].value)
+          ekipoakEtaIdeak.push(teamsComboBox[i].value)
+        }
+        teamsComboBox[i].remove()
+      }
+      console.log("ekipoak eta ideak:")
+      console.log(ekipoakEtaIdeak)
+      //Sartu berriak:
+      selectedLeague.addEventListener('change', (event) => {
+        restartComboBox(teamsComboBox)
+        let arrayToSet = []
+        if (selectedLeague.value == 'LaLiga') {
+          arrayToSet = laLigaTeams
+          console.log('hey')
+        }
+        else if (selectedLeague.value == 'Bundesliga') {
+          arrayToSet = bundesligaTeams
+        }
+        else if (selectedLeague.value == 'Ligue1') {
+          arrayToSet = ligue1Teams
+        }
+        else if (selectedLeague.value == 'Premier League') {
+          arrayToSet = premierLeagueTeams
+        }
+        else if (selectedLeague.value == 'Serie A') {
+          arrayToSet = serieATeams
+        }
+        arrayToSet.forEach(team => {
+          let option = document.createElement('option')
+          option.innerText = team
+          console.log(option)
+          teamsComboBox.appendChild(option)
+        })
+      })
+      restartComboBox(teamsComboBox)
+      bundesligaTeams.forEach(team => {
+        let option = document.createElement('option')
+        option.innerText = team
+        console.log(option)
+        teamsComboBox.appendChild(option)
+      })
+    }
+    function restartComboBox(comboBox) {
+      for (let i = comboBox.length - 1; i >= 0; i--) {
+        comboBox[i].remove()
+      }
+    }
+  </script>
+</head>
+
+<body>
+  
+  <div id="editForm">
+    <h1>Add New Player</h1>
+  <form method="POST" action="/api/v1/players/add" enctype="multipart/form-data" id="form">
+    <table class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <td>Id</td>
+          <td> <input name=id id="id" type="text" value=<%=inf.id %>></td>
+        </tr>
+        <tr>
+          <td>Izena</td>
+          <td><input name=name id="name" type="text" value=<%=inf.name %>></td>
+        </tr>
+        <tr>
+          <td>Jaiotze data</td>
+          <td> <input name=birthdate id="birthdate" type="date" value=<%=inf.birthdate %>></td>
+        </tr>
+        <tr>
+          <td>Nazionalitatea</td>
+          <td><input name=nationality id="nationality" type="text" value=<%=inf.nationality %>></td>
+        </tr>
+        <tr>
+          <td>Posizioa</td>
+          <td>
+            <select name="position" id="position">
+              <option>GK</option>
+              <option>DF</option>
+              <option>MF</option>
+              <option>FW</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Zenbakia</td>
+          <td>
+            <select name="number" id="number" width="50">
+              <% for(let i=1; i<100; i++){ %>
+                <option>
+                  <%=i%>
+                </option>
+                <%}%>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Liga</td>
+          <td>
+            <select name="leagueId" id="leagueId">
+              <option>Bundesliga</option>
+              <option>Premier League</option>
+              <option>LaLiga</option>
+              <option>Ligue1</option>
+              <option>Serie A</option>
+            </select>
+          </td>
+        <tr>
+          <td>Taldea</td>
+          <td>
+            <select name="teamId" id="teamId">
+              <% teams.forEach( team=> { %>
+                <option>
+                  <%=team.teamName%>
+                </option>
+                <option>
+                  <%=team.leagueId%>
+                </option>
+                <option>
+                  <%=team.teamId%>
+                </option>
+                <% }) %>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Argazkia (PNG)</td>
+          <td><input type="file" id="file" name="file"></td>
+        </tr>
+        <tr>
+          <td><input class="button" type="button" id="amaitu" value="Submit"></td>
+        </tr>
+
+      </thead>
+    </table>
+  </form>
+
+  <div id="error"></div>
+  <%=error%>
+</div>
+</body>
+
+</html>
